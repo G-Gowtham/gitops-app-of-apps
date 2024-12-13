@@ -1,0 +1,56 @@
+repoURL: "https://test.com/test.git"
+services:
+  - srv: argocd
+    path: charts/argocd
+    sync_wave: "1"
+    prune: false
+
+  - srv: app-of-apps
+    path: charts/app-of-apps
+    sync_wave: "1"
+    prune: false
+
+  - srv: activemq
+    path: charts/activemq
+    sync_wave: "1"
+    prune: true
+
+  - srv: influxdb2
+    path: charts/influxdb2
+    sync_wave: "4"
+    prune: true
+
+  - srv: grafana
+    path: charts/grafana
+    sync_wave: "4"
+    prune: true
+
+  - srv: telegraf
+    path: charts/telegraf
+    sync_wave: "4"
+    prune: true
+
+  - srv: api-tracker
+    path: charts/api-tracker
+    sync_wave: "5"
+    prune: true
+
+  - srv: gke-ingress
+    path: charts/gke-ingress
+    sync_wave: "10"
+    prune: false
+    
+
+#Reference for image updation annotations
+
+# annotations: 
+#   argocd-image-updater.argoproj.io/image-list: app=myrepo/app
+#   argocd-image-updater.argoproj.io/app.allow-tags: regexp:^[0-9]+.[0-9]+.[0-9]+-[0-9a-f]{7}$  
+#   argocd-image-updater.argoproj.io/app.helm.image-name: app.image.repository
+#   argocd-image-updater.argoproj.io/app.helm.image-tag: app.image.tag
+#   argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd-image-updater/git-creds
+#   argocd-image-updater.argoproj.io/git-repository: https://github.xxxxx
+#   argocd-image-updater.argoproj.io/write-back-target: "helmvalues:../../values.yaml"
+#   argocd-image-updater.argoproj.io/git-branch: master:image-updater{{range .Images}}-{{.Name}}-{{.NewTag}}{{end}}
+#   argocd-image-updater.argoproj.io/write-back-target: "helmvalues:./values.yaml" 
+

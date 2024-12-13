@@ -1,0 +1,2 @@
+targetBranch: "develop"
+valuesFile: prd-values.yaml

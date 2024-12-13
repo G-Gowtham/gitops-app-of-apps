@@ -1,0 +1,57 @@
+{{- $releaseName := .Values.releaseName | default "app-of-apps" }}
+{{- $releaseNamespace := .Values.releaseNamespace | default "default" }}
+{{- $targetBranch := .Values.targetBranch | default "develop" }}
+{{- $repoURL := .Values.repoURL | default "" }}
+{{- $valuesFile := .Values.valuesFile | required "\n.Values.valuesFile is missing.\n valuesFile variable is required.\n Eg: helm upgrade test . -i --set valuesFile=dev-values.yaml" }}
+{{- range .Values.services }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .srv }}
+  namespace: default
+  labels:
+    service: {{ .srv }}
+    prune: "{{ .prune | default "false" }}"
+    app.kubernetes.io/managed-by: "Helm"
+  annotations:
+    meta.helm.sh/release-name: "{{ $releaseName }}"
+    meta.helm.sh/release-namespace: "{{ $releaseNamespace }}"
+    argocd.argoproj.io/sync-wave: "{{ .sync_wave | default "3" }}"
+    {{- if .imageUpdaterAnnotations }}
+    {{- range $key, $value := .imageUpdaterAnnotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+    {{- end }}
+spec:
+  project: default
+  source:
+    repoURL: {{ $repoURL }}
+    targetRevision: {{ $targetBranch }}
+    path: {{ .path }}
+    helm:
+      releaseName: {{ .srv }}
+      passCredentials: true
+      valueFiles:
+        - values.yaml
+      {{- if .overrideValuesFile }}
+        - {{ .overrideValuesFile }}
+      {{- else }}
+        - {{ $valuesFile }}
+      {{- end }}
+  destination:
+    name: in-cluster
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: {{ .prune | default "false" }}
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        maxDuration: 3m0s
+        factor: 2
+    syncOptions:
+      - CreateNamespace=false
+{{- end }}
